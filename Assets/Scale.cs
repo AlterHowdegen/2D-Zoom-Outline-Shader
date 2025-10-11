@@ -9,7 +9,27 @@ public class Scale : MonoBehaviour
     [SerializeField] private float power;
     [SerializeField] private float logPower;
 
+    public void OnScale(float value)
+    {
+        scale = value;
+    }
+
+    public void OnRotation(float value)
+    {
+        rotation = value;
+    }
+
+    private void Update()
+    {
+        UpdateScaleAndRotation();
+    }
+
     private void OnValidate()
+    {
+        UpdateScaleAndRotation();
+    }
+
+    private void UpdateScaleAndRotation()
     {
         transform.localScale = Vector3.one * scale;
         Vector3 euler = transform.localRotation.eulerAngles;
