@@ -24,6 +24,10 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
+    - _Color_Tex:
+        m_Texture: {fileID: 2800000, guid: c32bd9ec912744f31b23eb1dad39a47d, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _MainTex:
         m_Texture: {fileID: 2800000, guid: 150c4e041fec34111a4df8f963b6be32, type: 3}
         m_Scale: {x: 1, y: 1}
@@ -46,13 +50,19 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - _Colored_Strength: 1
     - _Float: 1.8
+    - _Inner_Step: 0.098
+    - _Inner_Strength: 0
+    - _Outer_Strength: 0
     - _Pixelate_Modulo: 0
     - _Pixelate_Multiplier: 8
     - _QueueControl: 0
     - _QueueOffset: 0
+    - _Rotation: 0
     m_Colors:
-    - _Outline_Color: {r: 1, g: 0.5819087, b: 0, a: 1}
+    - _Inner_Color: {r: 0, g: 0, b: 0, a: 1}
+    - _Outline_Color: {r: 0, g: 0, b: 0, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
 --- !u!114 &1673071281914496103
