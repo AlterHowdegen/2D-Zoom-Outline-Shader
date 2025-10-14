@@ -53,13 +53,14 @@ Material:
     - _Colored_Strength: 1
     - _Float: 1.8
     - _Inner_Step: 0.098
-    - _Inner_Strength: 0
-    - _Outer_Strength: 0
+    - _Inner_Strength: 1
+    - _Outer_Strength: 1
     - _Pixelate_Modulo: 0
     - _Pixelate_Multiplier: 8
     - _QueueControl: 0
     - _QueueOffset: 0
     - _Rotation: 0
+    - _Shading_Strength: 1
     m_Colors:
     - _Inner_Color: {r: 0, g: 0, b: 0, a: 1}
     - _Outline_Color: {r: 0, g: 0, b: 0, a: 1}

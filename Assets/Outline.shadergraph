@@ -2915,7 +2915,7 @@
     "m_Type": "UnityEditor.ShaderGraph.Vector1MaterialSlot",
     "m_ObjectId": "11e99d8e10a149f4aadb4b9582eff450",
     "m_Id": 0,
-    "m_DisplayName": "Colored Strength",
+    "m_DisplayName": "Shading Strength",
     "m_SlotType": 1,
     "m_Hidden": false,
     "m_ShaderOutputName": "Out",
@@ -12201,10 +12201,10 @@
     "m_Guid": {
         "m_GuidSerialized": "2fafa34d-ca8e-4753-866c-5f78e03791c7"
     },
-    "m_Name": "Colored Strength",
+    "m_Name": "Shading Strength",
     "m_DefaultRefNameVersion": 1,
-    "m_RefNameGeneratedByDisplayName": "Colored Strength",
-    "m_DefaultReferenceName": "_Colored_Strength",
+    "m_RefNameGeneratedByDisplayName": "Shading Strength",
+    "m_DefaultReferenceName": "_Shading_Strength",
     "m_OverrideReferenceName": "",
     "m_GeneratePropertyBlock": true,
     "m_UseCustomSlotLabel": false,
