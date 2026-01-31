@@ -7,13 +7,13 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Shader Graphs_Outline
-  m_Shader: {fileID: -6465566751694194690, guid: 50df44bf7b2964746bd6722239a43eb0, type: 3}
+  m_Name: Shader Graphs_Outline Dynamic 1
+  m_Shader: {fileID: -6465566751694194690, guid: a9a6643e229414bfcba566e2dd39f4f2, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
   m_InvalidKeywords: []
-  m_LightmapFlags: 4
+  m_LightmapFlags: 0
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
@@ -24,12 +24,20 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
+    - _BumpMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _Color_Tex:
-        m_Texture: {fileID: 2800000, guid: c32bd9ec912744f31b23eb1dad39a47d, type: 3}
+        m_Texture: {fileID: 8400000, guid: 2dcaa5ff5183945b8bce1e7db7297420, type: 2}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _EmissionMap:
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: 150c4e041fec34111a4df8f963b6be32, type: 3}
+        m_Texture: {fileID: 8400000, guid: f5d37f51c934a4cce87b80b5c37aa6cc, type: 2}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Main_Tex:
@@ -50,10 +58,27 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - _BlendOp: 0
+    - _BumpScale: 1
+    - _CameraFadingEnabled: 0
+    - _CameraFarFadeDistance: 2
+    - _CameraNearFadeDistance: 1
+    - _ColorMode: 0
     - _Colored_Strength: 1
+    - _Cull: 2
+    - _Cutoff: 0.5
+    - _DistortionBlend: 0.5
+    - _DistortionEnabled: 0
+    - _DistortionStrength: 1
+    - _DistortionStrengthScaled: 0
+    - _DstBlend: 10
+    - _EmissionEnabled: 0
+    - _FlipbookMode: 0
     - _Float: 1.8
-    - _Inner_Step: 0.09
-    - _Inner_Strength: 1
+    - _Inner_Step: 0.249
+    - _Inner_Strength: 0.538
+    - _LightingEnabled: 0
+    - _Mode: 3
     - _Outer_Strength: 1
     - _Pixelate_Modulo: 0
     - _Pixelate_Multiplier: 8
@@ -61,9 +86,22 @@ Material:
     - _QueueOffset: 0
     - _Rotation: 0
     - _Shading_Strength: 1
+    - _SoftParticlesEnabled: 0
+    - _SoftParticlesFarFadeDistance: 1
+    - _SoftParticlesNearFadeDistance: 0
+    - _SrcBlend: 1
+    - _ZWrite: 0
     m_Colors:
+    - _CameraFadeParams: {r: 0, g: Infinity, b: 0, a: 0}
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _ColorAddSubDiff: {r: 0, g: 0, b: 0, a: 0}
+    - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _Inner_Color: {r: 0, g: 0, b: 0, a: 1}
+    - _Offset: {r: 0.5, g: 0, b: 0, a: 0}
     - _Outline_Color: {r: 0, g: 0, b: 0, a: 1}
+    - _SoftParticleFadeParams: {r: 0, g: 0, b: 0, a: 0}
+    - _Tiling: {r: 0.5, g: 1, b: 0, a: 0}
+    - _Vector2: {r: 0, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
 --- !u!114 &1673071281914496103
