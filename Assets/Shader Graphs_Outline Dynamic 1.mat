@@ -75,8 +75,8 @@ Material:
     - _EmissionEnabled: 0
     - _FlipbookMode: 0
     - _Float: 1.8
-    - _Inner_Step: 0.249
-    - _Inner_Strength: 0.538
+    - _Inner_Step: 0.1
+    - _Inner_Strength: 0.567
     - _LightingEnabled: 0
     - _Mode: 3
     - _Outer_Strength: 1
@@ -97,10 +97,10 @@ Material:
     - _ColorAddSubDiff: {r: 0, g: 0, b: 0, a: 0}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _Inner_Color: {r: 0, g: 0, b: 0, a: 1}
-    - _Offset: {r: 0.5, g: 0, b: 0, a: 0}
+    - _Offset: {r: 0.25, g: 0, b: 0, a: 0}
     - _Outline_Color: {r: 0, g: 0, b: 0, a: 1}
     - _SoftParticleFadeParams: {r: 0, g: 0, b: 0, a: 0}
-    - _Tiling: {r: 0.5, g: 1, b: 0, a: 0}
+    - _Tiling: {r: 0.25, g: 1, b: 0, a: 0}
     - _Vector2: {r: 0, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
