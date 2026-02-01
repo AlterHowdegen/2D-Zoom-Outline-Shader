@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Shader Graphs_Outline Dynamic 3
+  m_Name: Flagship
   m_Shader: {fileID: -6465566751694194690, guid: a9a6643e229414bfcba566e2dd39f4f2, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -97,10 +97,10 @@ Material:
     - _ColorAddSubDiff: {r: 0, g: 0, b: 0, a: 0}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _Inner_Color: {r: 0, g: 0, b: 0, a: 1}
-    - _Offset: {r: 0.75, g: 0, b: 0, a: 0}
+    - _Offset: {r: 0, g: 0.25, b: 0, a: 0}
     - _Outline_Color: {r: 0, g: 0, b: 0, a: 1}
     - _SoftParticleFadeParams: {r: 0, g: 0, b: 0, a: 0}
-    - _Tiling: {r: 0.25, g: 1, b: 0, a: 0}
+    - _Tiling: {r: 0.75, g: 0.5, b: 0, a: 0}
     - _Vector2: {r: 0, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using TMPro;
-using Unity.Collections;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -31,12 +30,16 @@ public class Rotator : MonoBehaviour
     public int currentAnimationFramerateIndexIndex;
     public TextMeshPro statusLabelTop;
     public TextMeshPro statusLabelBottom;
+    private List<float> previousPositions = new List<float>();
+    private List<float> interpolatedVelocities = new List<float>();
+    public float bankingSpeed = 1f;
 
     private void Start()
     {
         Application.targetFrameRate = 60;
         cameraColor.enabled = false;
         cameraShading.enabled = false;
+        PositionInGridNow();
         RequestManualRender(cameraColor);
         RequestManualRender(cameraShading);
 
@@ -45,9 +48,11 @@ public class Rotator : MonoBehaviour
         for (int i = 0; i < gameObjects.Count; i++)
         {
             GameObject go = gameObjects[i];
-            go.transform.localScale = Vector3.one * scaleSmall;
+            go.transform.localScale = Vector3.one * scaleBig;
             GameObject sprite = sprites[i];
             meshRenderers.Add(sprite.GetComponent<MeshRenderer>());
+            previousPositions.Add(go.transform.localPosition.y);
+            interpolatedVelocities.Add(0f);
         }
         UpdateFpsDisplay();
     }
@@ -62,6 +67,30 @@ public class Rotator : MonoBehaviour
             RequestManualRender(cameraShading);
 
             currentAnimationFrame = 0;
+        }
+
+        Bank();
+    }
+
+    private void Bank()
+    {
+        for (int i = 0; i < sprites.Count; i++)
+        {
+            GameObject sprite = sprites[i];
+            GameObject go = gameObjects[i];
+            float previousPosition = previousPositions[i];
+
+            float velocity = sprite.transform.localPosition.y - previousPosition;
+
+            interpolatedVelocities[i] = Mathf.Lerp(interpolatedVelocities[i], velocity, Time.fixedDeltaTime);
+
+            Vector3 localEulerAngles = go.transform.localEulerAngles;
+            localEulerAngles.x = interpolatedVelocities[i] * bankingSpeed;
+
+            go.transform.localEulerAngles = localEulerAngles;
+            // Debug.Log(localEulerAngles.x);
+
+            previousPositions[i] = sprite.transform.localPosition.y;
         }
     }
 
@@ -218,7 +247,7 @@ public class Rotator : MonoBehaviour
 
     private void PositionInGrid()
     {
-        SetNotification("Turntable:", "Grid");
+        SetNotification("Position:", "Grid");
         Vector3 position = gridStartingPosition;
         for (int i = 0; i < sprites.Count; i++)
         {
@@ -227,6 +256,22 @@ public class Rotator : MonoBehaviour
             LeanTween.moveLocal(sprite, position, rotationDuration)
                 .setEaseInOutCubic()
                 .setDelay(i * delayDuration);
+            position.x++;
+            if (position.x > gridStartingPosition.x + 1f)
+            {
+                position.x = gridStartingPosition.x;
+                position.y -= 0.75f;
+            }
+        }
+    }
+
+    private void PositionInGridNow()
+    {
+        Vector3 position = gridStartingPosition;
+        for (int i = 0; i < sprites.Count; i++)
+        {
+            GameObject sprite = sprites[i];
+            sprite.transform.localPosition = position;
             position.x++;
             if (position.x > gridStartingPosition.x + 1f)
             {
