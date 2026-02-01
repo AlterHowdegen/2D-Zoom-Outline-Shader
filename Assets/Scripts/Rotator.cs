@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using TMPro;
 using Unity.Collections;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public class Rotator : MonoBehaviour
 {
@@ -21,9 +23,24 @@ public class Rotator : MonoBehaviour
     public Vector3 gridStartingPosition;
     public float delayDuration = 0.1f;
     public Color flashColor;
+    public Camera cameraColor;
+    public Camera cameraShading;
+    public List<int> initialAnimationFramerates = new List<int>();
+    public int targetFrameCountForCurrentAnimationFramerate;
+    private int currentAnimationFrame;
+    public int currentAnimationFramerateIndexIndex;
+    public TextMeshPro statusLabelTop;
+    public TextMeshPro statusLabelBottom;
 
-    void Start()
+    private void Start()
     {
+        Application.targetFrameRate = 60;
+        cameraColor.enabled = false;
+        cameraShading.enabled = false;
+        RequestManualRender(cameraColor);
+        RequestManualRender(cameraShading);
+
+        targetFrameCountForCurrentAnimationFramerate = Application.targetFrameRate / initialAnimationFramerates[0];
         meshRenderers = new List<MeshRenderer>();
         for (int i = 0; i < gameObjects.Count; i++)
         {
@@ -32,6 +49,35 @@ public class Rotator : MonoBehaviour
             GameObject sprite = sprites[i];
             meshRenderers.Add(sprite.GetComponent<MeshRenderer>());
         }
+        UpdateFpsDisplay();
+    }
+
+    private void Update()
+    {
+        currentAnimationFrame++;
+
+        if (currentAnimationFrame >= targetFrameCountForCurrentAnimationFramerate)
+        {
+            RequestManualRender(cameraColor);
+            RequestManualRender(cameraShading);
+
+            currentAnimationFrame = 0;
+        }
+    }
+
+    private void RequestManualRender(Camera camera)
+    {
+        // if (!camera.targetTexture.IsCreated())
+        // {
+        //     camera.targetTexture.Create();
+        // }
+
+        RenderPipeline.StandardRequest request = new RenderPipeline.StandardRequest();
+        // Render to a 2D texture
+        request.destination = camera.targetTexture;
+
+        // Render the camera, and fill the 2D texture with its view
+        camera.SubmitRenderRequest(request);
     }
 
     [ContextMenu("Barrel Roll")]
@@ -41,6 +87,8 @@ public class Rotator : MonoBehaviour
         {
             return;
         }
+
+        SetNotification("Do a", "Barrel Roll");
 
         isBarrelRolling = true;
         for (int i = 0; i < gameObjects.Count; i++)
@@ -65,6 +113,7 @@ public class Rotator : MonoBehaviour
     {
         if (resizedBig)
         {
+            SetNotification("Resize:", "Smol");
             for (int i = 0; i < gameObjects.Count; i++)
             {
                 resizedBig = false;
@@ -74,6 +123,7 @@ public class Rotator : MonoBehaviour
             return;
         }
 
+        SetNotification("Resize:", "Big");
         for (int i = 0; i < gameObjects.Count; i++)
         {
             resizedBig = true;
@@ -95,6 +145,7 @@ public class Rotator : MonoBehaviour
         LeanTween.cancelAll();
         if (turntableRunning)
         {
+            SetNotification("Turntable:", "Stop");
             turntableRunning = false;
             for (int i = 0; i < gameObjects.Count; i++)
             {
@@ -104,6 +155,7 @@ public class Rotator : MonoBehaviour
             return;
         }
 
+        SetNotification("Turntable:", "Activate");
         for (int i = 0; i < gameObjects.Count; i++)
         {
             turntableRunning = true;
@@ -152,6 +204,7 @@ public class Rotator : MonoBehaviour
 
     private void PositionInRow()
     {
+        SetNotification("Position:", "Row");
         Vector3 position = rowStartingPosition;
         for (int i = 0; i < sprites.Count; i++)
         {
@@ -159,12 +212,13 @@ public class Rotator : MonoBehaviour
             LeanTween.moveLocal(sprite, position, rotationDuration)
                 .setEaseInOutCubic()
                 .setDelay(i * delayDuration);
-            position.x++;
+            position.x += 0.9f;
         }
     }
 
     private void PositionInGrid()
     {
+        SetNotification("Turntable:", "Grid");
         Vector3 position = gridStartingPosition;
         for (int i = 0; i < sprites.Count; i++)
         {
@@ -184,6 +238,7 @@ public class Rotator : MonoBehaviour
 
     public void FlashAll()
     {
+        SetNotification("Flash", "Flash");
         for (int i = 0; i < meshRenderers.Count; i++)
         {
             MeshRenderer meshRenderer = meshRenderers[i];
@@ -197,5 +252,30 @@ public class Rotator : MonoBehaviour
     private void UpdateColor(MeshRenderer meshRenderer, Color color)
     {
         meshRenderer.material.SetColor("_Outline_Color", color);
+        meshRenderer.material.SetColor("_Inner_Color", color);
+    }
+
+    public void SetRenderSkip()
+    {
+        currentAnimationFramerateIndexIndex++;
+        if (currentAnimationFramerateIndexIndex >= initialAnimationFramerates.Count)
+        {
+            currentAnimationFramerateIndexIndex = 0;
+        }
+
+        targetFrameCountForCurrentAnimationFramerate = Application.targetFrameRate / initialAnimationFramerates[currentAnimationFramerateIndexIndex];
+
+        UpdateFpsDisplay();
+    }
+
+    private void UpdateFpsDisplay()
+    {
+        SetNotification($"Animation FPS: {initialAnimationFramerates[currentAnimationFramerateIndexIndex]}", $"Animate every: {targetFrameCountForCurrentAnimationFramerate}");
+    }
+
+    private void SetNotification(string top, string bottom)
+    {
+        statusLabelTop.SetText(top);
+        statusLabelBottom.SetText(bottom);
     }
 }
