@@ -1747,7 +1747,7 @@ GameObject:
   - component: {fileID: 832575519}
   - component: {fileID: 832575518}
   m_Layer: 0
-  m_Name: Global Volume
+  m_Name: Volume Main Global
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2587,7 +2587,7 @@ GameObject:
   - component: {fileID: 1329324004}
   - component: {fileID: 1329324003}
   - component: {fileID: 1329324001}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Sprite Camera Shading
   m_TagString: MainCamera
   m_Icon: {fileID: 0}
@@ -2617,7 +2617,7 @@ MonoBehaviour:
     m_Bits: 1
   m_VolumeTrigger: {fileID: 0}
   m_VolumeFrameworkUpdateModeOption: 2
-  m_RenderPostProcessing: 0
+  m_RenderPostProcessing: 1
   m_Antialiasing: 0
   m_AntialiasingQuality: 2
   m_StopNaN: 0
