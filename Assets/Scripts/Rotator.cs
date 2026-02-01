@@ -7,6 +7,7 @@ public class Rotator : MonoBehaviour
 {
     public List<GameObject> gameObjects = new List<GameObject>();
     public List<GameObject> sprites = new List<GameObject>();
+    public List<MeshRenderer> meshRenderers = new List<MeshRenderer>();
     public float rotationDuration;
     public float scaleSmall;
     public float scaleBig;
@@ -18,13 +19,18 @@ public class Rotator : MonoBehaviour
     private bool isPositionedInRow;
     public Vector3 rowStartingPosition;
     public Vector3 gridStartingPosition;
+    public float delayDuration = 0.1f;
+    public Color flashColor;
 
     void Start()
     {
+        meshRenderers = new List<MeshRenderer>();
         for (int i = 0; i < gameObjects.Count; i++)
         {
             GameObject go = gameObjects[i];
             go.transform.localScale = Vector3.one * scaleSmall;
+            GameObject sprite = sprites[i];
+            meshRenderers.Add(sprite.GetComponent<MeshRenderer>());
         }
     }
 
@@ -40,15 +46,18 @@ public class Rotator : MonoBehaviour
         for (int i = 0; i < gameObjects.Count; i++)
         {
             GameObject go = gameObjects[i];
-            BarrelRoll(go);
+            BarrelRoll(go, i);
         }
     }
 
-    public void BarrelRoll(GameObject go)
+    public void BarrelRoll(GameObject go, int i)
     {
-        LeanTween.rotateAroundLocal(go, Vector3.right, 360f, rotationDuration)
+        float randomDirection = UnityEngine.Random.value;
+        float direction = randomDirection > 0.5f ? 360f : -360f;
+        LeanTween.rotateAroundLocal(go, Vector3.right, direction, rotationDuration)
             .setEaseInOutCubic()
-            .setOnComplete(() => isBarrelRolling = false);
+            .setOnComplete(() => isBarrelRolling = false)
+            .setDelay(i * delayDuration);
     }
 
     [ContextMenu("Resize")]
@@ -60,7 +69,7 @@ public class Rotator : MonoBehaviour
             {
                 resizedBig = false;
                 GameObject go = gameObjects[i];
-                Resize(go, scaleSmall);
+                Resize(go, scaleSmall, i);
             }
             return;
         }
@@ -69,14 +78,15 @@ public class Rotator : MonoBehaviour
         {
             resizedBig = true;
             GameObject go = gameObjects[i];
-            Resize(go, scaleBig);
+            Resize(go, scaleBig, i);
         }
     }
 
-    public void Resize(GameObject go, float scale)
+    public void Resize(GameObject go, float scale, int i)
     {
         LeanTween.scale(go, Vector3.one * scale, rotationDuration)
-            .setEaseInOutCubic();
+            .setEaseInOutCubic()
+            .setDelay(i * delayDuration);
     }
 
     [ContextMenu("Turntable")]
@@ -147,7 +157,8 @@ public class Rotator : MonoBehaviour
         {
             GameObject sprite = sprites[i];
             LeanTween.moveLocal(sprite, position, rotationDuration)
-                .setEaseInOutCubic();
+                .setEaseInOutCubic()
+                .setDelay(i * delayDuration);
             position.x++;
         }
     }
@@ -160,7 +171,8 @@ public class Rotator : MonoBehaviour
             GameObject sprite = sprites[i];
 
             LeanTween.moveLocal(sprite, position, rotationDuration)
-                .setEaseInOutCubic();
+                .setEaseInOutCubic()
+                .setDelay(i * delayDuration);
             position.x++;
             if (position.x > gridStartingPosition.x + 1f)
             {
@@ -168,5 +180,22 @@ public class Rotator : MonoBehaviour
                 position.y -= 0.75f;
             }
         }
+    }
+
+    public void FlashAll()
+    {
+        for (int i = 0; i < meshRenderers.Count; i++)
+        {
+            MeshRenderer meshRenderer = meshRenderers[i];
+            LeanTween.value(meshRenderer.gameObject, Color.black, flashColor, rotationDuration / 4f)
+                .setOnUpdate((Color color) => UpdateColor(meshRenderer, color))
+                .setLoopPingPong(1)
+                .setDelay(i * delayDuration);
+        }
+    }
+
+    private void UpdateColor(MeshRenderer meshRenderer, Color color)
+    {
+        meshRenderer.material.SetColor("_Outline_Color", color);
     }
 }
