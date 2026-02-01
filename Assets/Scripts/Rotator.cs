@@ -275,7 +275,25 @@ public class Rotator : MonoBehaviour
 
     private void SetNotification(string top, string bottom)
     {
+        LeanTween.cancel(statusLabelTop.gameObject);
+
+        SetNotificationAlpha(1f);
         statusLabelTop.SetText(top);
         statusLabelBottom.SetText(bottom);
+
+        FadeOut();
+    }
+
+    private void FadeOut()
+    {
+        LeanTween.value(statusLabelTop.gameObject, statusLabelTop.alpha, 0f, rotationDuration)
+            .setOnUpdate(SetNotificationAlpha)
+            .setDelay(delayDuration);
+    }
+
+    private void SetNotificationAlpha(float value)
+    {
+        statusLabelTop.alpha = value;
+        statusLabelBottom.alpha = value;
     }
 }
