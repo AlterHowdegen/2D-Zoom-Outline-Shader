@@ -1,11 +1,12 @@
 using System;
 using System.Collections.Generic;
+using Unity.Collections;
 using UnityEngine;
-using UnityEngine.Video;
 
 public class Rotator : MonoBehaviour
 {
     public List<GameObject> gameObjects = new List<GameObject>();
+    public List<GameObject> sprites = new List<GameObject>();
     public float rotationDuration;
     public float scaleSmall;
     public float scaleBig;
@@ -14,6 +15,9 @@ public class Rotator : MonoBehaviour
     private bool turntableRunning;
     private bool resizedBig;
     private bool isBarrelRolling;
+    private bool isPositionedInRow;
+    public Vector3 rowStartingPosition;
+    public Vector3 gridStartingPosition;
 
     void Start()
     {
@@ -121,5 +125,48 @@ public class Rotator : MonoBehaviour
     {
         LeanTween.rotateAround(go, Vector3.up, 360f, rotationDuration * 2f)
             .setLoopCount(0);
+    }
+
+    public void Positioning()
+    {
+        if (isPositionedInRow)
+        {
+            isPositionedInRow = false;
+            PositionInGrid();
+            return;
+        }
+
+        isPositionedInRow = true;
+        PositionInRow();
+    }
+
+    private void PositionInRow()
+    {
+        Vector3 position = rowStartingPosition;
+        for (int i = 0; i < sprites.Count; i++)
+        {
+            GameObject sprite = sprites[i];
+            LeanTween.moveLocal(sprite, position, rotationDuration)
+                .setEaseInOutCubic();
+            position.x++;
+        }
+    }
+
+    private void PositionInGrid()
+    {
+        Vector3 position = gridStartingPosition;
+        for (int i = 0; i < sprites.Count; i++)
+        {
+            GameObject sprite = sprites[i];
+
+            LeanTween.moveLocal(sprite, position, rotationDuration)
+                .setEaseInOutCubic();
+            position.x++;
+            if (position.x > gridStartingPosition.x + 1f)
+            {
+                position.x = gridStartingPosition.x;
+                position.y -= 0.75f;
+            }
+        }
     }
 }
