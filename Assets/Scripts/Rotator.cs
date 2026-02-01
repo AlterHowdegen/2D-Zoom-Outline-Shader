@@ -33,6 +33,7 @@ public class Rotator : MonoBehaviour
     private List<float> previousPositions = new List<float>();
     private List<float> interpolatedVelocities = new List<float>();
     public float bankingSpeed = 1f;
+    public GameObject flagship;
 
     private void Start()
     {
@@ -48,7 +49,7 @@ public class Rotator : MonoBehaviour
         for (int i = 0; i < gameObjects.Count; i++)
         {
             GameObject go = gameObjects[i];
-            go.transform.localScale = Vector3.one * scaleBig;
+            go.transform.localScale = Vector3.one * scaleSmall;
             GameObject sprite = sprites[i];
             meshRenderers.Add(sprite.GetComponent<MeshRenderer>());
             previousPositions.Add(go.transform.localPosition.y);
@@ -125,6 +126,17 @@ public class Rotator : MonoBehaviour
             GameObject go = gameObjects[i];
             BarrelRoll(go, i);
         }
+
+        LeanTween.rotateAroundLocal(flagship, Vector3.right, -15f, rotationDuration / 2f)
+            .setEaseInOutCubic();
+
+        LeanTween.rotateAroundLocal(flagship, Vector3.right, 30f, rotationDuration)
+            .setEaseInOutCubic()
+            .setDelay(rotationDuration / 2f);
+
+        LeanTween.rotateAroundLocal(flagship, Vector3.right, -15f, rotationDuration / 2f)
+            .setEaseInOutCubic()
+            .setDelay(rotationDuration + (rotationDuration / 2f));
     }
 
     public void BarrelRoll(GameObject go, int i)
@@ -149,6 +161,7 @@ public class Rotator : MonoBehaviour
                 GameObject go = gameObjects[i];
                 Resize(go, scaleSmall, i);
             }
+            Resize(flagship, 0.5f, 0);
             return;
         }
 
@@ -159,6 +172,7 @@ public class Rotator : MonoBehaviour
             GameObject go = gameObjects[i];
             Resize(go, scaleBig, i);
         }
+        Resize(flagship, 1f, 0);
     }
 
     public void Resize(GameObject go, float scale, int i)
@@ -215,7 +229,7 @@ public class Rotator : MonoBehaviour
     private void TurntableLoop(GameObject go)
     {
         LeanTween.rotateAround(go, Vector3.up, 360f, rotationDuration * 2f)
-            .setLoopCount(0);
+            .setLoopCount(-1);
     }
 
     public void Positioning()

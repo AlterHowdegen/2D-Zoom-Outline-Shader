@@ -3,7 +3,42 @@ guid: 217e1bc616aab431aa377b175868104d
 ModelImporter:
   serializedVersion: 24200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: e.001
+    second: {fileID: 2100000, guid: ad97213a061ba4d9f80bd781522d7f2e, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: enemy.001
+    second: {fileID: 2100000, guid: 26de28a5621b247b0b29af0856e70417, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: enemy.002
+    second: {fileID: 2100000, guid: 29a82b729c64c4d1996f1cb75eca23da, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: enemy.003
+    second: {fileID: 2100000, guid: e58d20b9f48944b7cab18c71cc42a4ad, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: enemy.004
+    second: {fileID: 2100000, guid: 6b0cb6d33242e4a70b6fc55a756b0f86, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: enemy.006
+    second: {fileID: 2100000, guid: 6a70e91fb1b08485c8c1ca5642983139, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: enemy.007
+    second: {fileID: 2100000, guid: 619dbe4703dea4e75887b0a859c29afd, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
