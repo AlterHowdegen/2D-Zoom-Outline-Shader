@@ -34,6 +34,8 @@ public class Rotator : MonoBehaviour
     private List<float> interpolatedVelocities = new List<float>();
     public float bankingSpeed = 1f;
     public GameObject flagship;
+    public MeshRenderer meshRendererFlagship;
+    public Color flashColorEnemy;
 
     private void Start()
     {
@@ -55,6 +57,7 @@ public class Rotator : MonoBehaviour
             previousPositions.Add(go.transform.localPosition.y);
             interpolatedVelocities.Add(0f);
         }
+        flagship.transform.localScale = Vector3.one * 0.5f;
         UpdateFpsDisplay();
     }
 
@@ -301,11 +304,18 @@ public class Rotator : MonoBehaviour
         for (int i = 0; i < meshRenderers.Count; i++)
         {
             MeshRenderer meshRenderer = meshRenderers[i];
-            LeanTween.value(meshRenderer.gameObject, Color.black, flashColor, rotationDuration / 4f)
-                .setOnUpdate((Color color) => UpdateColor(meshRenderer, color))
-                .setLoopPingPong(1)
-                .setDelay(i * delayDuration);
+            Flash(meshRenderer, flashColor, i);
         }
+
+        Flash(meshRendererFlagship, flashColorEnemy, 0);
+    }
+
+    public void Flash(MeshRenderer meshRenderer, Color flashColor, int i)
+    {
+        LeanTween.value(meshRenderer.gameObject, Color.black, flashColor, rotationDuration / 4f)
+            .setOnUpdate((Color color) => UpdateColor(meshRenderer, color))
+            .setLoopPingPong(1)
+            .setDelay(i * delayDuration);
     }
 
     private void UpdateColor(MeshRenderer meshRenderer, Color color)
