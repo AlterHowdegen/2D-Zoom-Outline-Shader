@@ -1,11 +1,16 @@
 using System;
 using System.Collections.Generic;
 using TMPro;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.Rendering;
+using UnityEngine.Video;
 
 public class Rotator : MonoBehaviour
 {
+    public List<Ship> ships = new List<Ship>();
+    internal List<Ship> shipInstances = new List<Ship>();
+
     public List<GameObject> gameObjects = new List<GameObject>();
     public List<GameObject> sprites = new List<GameObject>();
     public List<MeshRenderer> meshRenderers = new List<MeshRenderer>();
@@ -33,9 +38,16 @@ public class Rotator : MonoBehaviour
     private List<float> previousPositions = new List<float>();
     private List<float> interpolatedVelocities = new List<float>();
     public float bankingSpeed = 1f;
-    public GameObject flagship;
     public MeshRenderer meshRendererFlagship;
     public Color flashColorEnemy;
+    public RenderTexture renderTextureColor;
+    public RenderTexture renderTextureShading;
+    private int renderTextureStep = 64;
+    private Vector2Int renderTextureResolution;
+    private Vector2 tiling = Vector2.one;
+    private Vector2 offset = Vector2.zero;
+    public Vector3 spritesStartingPosition;
+    private int previousRandomIndex = -1;
 
     private void Start()
     {
@@ -57,7 +69,6 @@ public class Rotator : MonoBehaviour
             previousPositions.Add(go.transform.localPosition.y);
             interpolatedVelocities.Add(0f);
         }
-        flagship.transform.localScale = Vector3.one * 0.5f;
         UpdateFpsDisplay();
     }
 
@@ -76,6 +87,114 @@ public class Rotator : MonoBehaviour
         Bank();
     }
 
+    public void SpawnShip()
+    {
+        // Instantiate objects
+
+        List<int> randomIndices = new List<int>();
+
+        for (int i = 0; i < ships.Count; i++)
+        {
+            if (i == previousRandomIndex)
+            {
+                continue;
+            }
+            randomIndices.Add(i);
+        }
+
+        int randomIndex = UnityEngine.Random.Range(0, randomIndices.Count);
+        randomIndex = randomIndices[randomIndex];
+
+        previousRandomIndex = randomIndex;
+
+        Ship ship = Instantiate(ships[randomIndex]);
+        GameObject model = Instantiate(ship.modelPrefab.gameObject, Vector3.zero, Quaternion.identity);
+        GameObject sprite = Instantiate(ship.spritePrefab.gameObject, Vector3.zero, Quaternion.identity);
+        ship.model = model.GetComponent<Transform>();
+        ship.sprite = model.GetComponent<MeshRenderer>();
+        gameObjects.Add(model);
+        sprites.Add(sprite);
+        shipInstances.Add(ship);
+        previousPositions.Add(sprite.transform.localPosition.y);
+        interpolatedVelocities.Add(0f);
+
+        ResizeRenderTextures();
+        PositionModels();
+        PositionCameras();
+        SetSpritesTilingAndOffset();
+    }
+
+    private void PositionCameras()
+    {
+        PositionCamera(cameraColor);
+        PositionCamera(cameraShading);
+    }
+
+    private void PositionCamera(Camera camera)
+    {
+        Vector3 position = camera.transform.localPosition;
+        position.x = renderTextureResolution.x * 0.5f - 0.5f;
+        camera.transform.localPosition = position;
+    }
+
+    private void PositionModels()
+    {
+        for (int i = 0; i < gameObjects.Count; i++)
+        {
+            GameObject go = gameObjects[i];
+            Vector3 position = Vector3.zero;
+            position.x = i * 1f;
+            go.transform.localPosition = position;
+        }
+    }
+
+    private void SetSpritesTilingAndOffset()
+    {
+        tiling.x = 1f / renderTextureResolution.x;
+        Vector3 goOffset = Vector3.zero;
+        offset = Vector3.zero;
+        for (int i = 0; i < sprites.Count; i++)
+        {
+            offset.x = tiling.x * i;
+            MeshRenderer meshRenderer = sprites[i].GetComponent<MeshRenderer>();
+            meshRenderer.material.SetVector("_Tiling", tiling);
+            meshRenderer.material.SetVector("_Offset", offset);
+
+            meshRenderer.material.SetTexture("_MainTex", renderTextureColor);
+            meshRenderer.material.SetTexture("_Color_Tex", renderTextureShading);
+
+            GameObject sprite = sprites[i];
+            sprite.transform.localPosition = spritesStartingPosition + goOffset;
+            goOffset.x += 1f;
+        }
+    }
+
+    private void ResizeRenderTextures()
+    {
+        renderTextureResolution.x = shipInstances.Count;
+        renderTextureResolution.y = 1;
+
+        renderTextureResolution.x = Mathf.Clamp(renderTextureResolution.x, 1, 64);
+        renderTextureResolution.y = Mathf.Clamp(renderTextureResolution.y, 1, 64);
+        ResizeRenderTexture(renderTextureColor);
+        ResizeRenderTexture(renderTextureShading);
+        // ResizeCamera(cameraColor);
+        // ResizeCamera(cameraShading);
+    }
+
+    // private void ResizeCamera(Camera cameraColor)
+    // {
+    //     cameraColor.orthographicSize = 0.5f * renderTextureResolution.x;
+    // }
+
+    private void ResizeRenderTexture(RenderTexture renderTexture)
+    {
+        renderTexture.Release();
+        renderTexture.width = renderTextureResolution.x * 64;
+        renderTexture.height = renderTextureResolution.y * 64;
+        renderTexture.Create();
+    }
+
     private void Bank()
     {
         for (int i = 0; i < sprites.Count; i++)
@@ -86,7 +205,7 @@ public class Rotator : MonoBehaviour
 
             float velocity = sprite.transform.localPosition.y - previousPosition;
 
-            interpolatedVelocities[i] = Mathf.Lerp(interpolatedVelocities[i], velocity, Time.fixedDeltaTime);
+            interpolatedVelocities[i] = Mathf.Lerp(interpolatedVelocities[i], velocity, Time.deltaTime);
 
             Vector3 localEulerAngles = go.transform.localEulerAngles;
             localEulerAngles.x = interpolatedVelocities[i] * bankingSpeed;
@@ -130,16 +249,16 @@ public class Rotator : MonoBehaviour
             BarrelRoll(go, i);
         }
 
-        LeanTween.rotateAroundLocal(flagship, Vector3.right, -15f, rotationDuration / 2f)
-            .setEaseInOutCubic();
+        // LeanTween.rotateAroundLocal(flagship, Vector3.right, -15f, rotationDuration / 2f)
+        //     .setEaseInOutCubic();
 
-        LeanTween.rotateAroundLocal(flagship, Vector3.right, 30f, rotationDuration)
-            .setEaseInOutCubic()
-            .setDelay(rotationDuration / 2f);
+        // LeanTween.rotateAroundLocal(flagship, Vector3.right, 30f, rotationDuration)
+        //     .setEaseInOutCubic()
+        //     .setDelay(rotationDuration / 2f);
 
-        LeanTween.rotateAroundLocal(flagship, Vector3.right, -15f, rotationDuration / 2f)
-            .setEaseInOutCubic()
-            .setDelay(rotationDuration + (rotationDuration / 2f));
+        // LeanTween.rotateAroundLocal(flagship, Vector3.right, -15f, rotationDuration / 2f)
+        //     .setEaseInOutCubic()
+        //     .setDelay(rotationDuration + (rotationDuration / 2f));
     }
 
     public void BarrelRoll(GameObject go, int i)
@@ -164,7 +283,7 @@ public class Rotator : MonoBehaviour
                 GameObject go = gameObjects[i];
                 Resize(go, scaleSmall, i);
             }
-            Resize(flagship, 0.5f, 0);
+            // Resize(flagship, 0.5f, 0);
             return;
         }
 
@@ -175,7 +294,7 @@ public class Rotator : MonoBehaviour
             GameObject go = gameObjects[i];
             Resize(go, scaleBig, i);
         }
-        Resize(flagship, 1f, 0);
+        // Resize(flagship, 1f, 0);
     }
 
     public void Resize(GameObject go, float scale, int i)
@@ -274,7 +393,7 @@ public class Rotator : MonoBehaviour
                 .setEaseInOutCubic()
                 .setDelay(i * delayDuration);
             position.x++;
-            if (position.x > gridStartingPosition.x + 1f)
+            if (position.x > gridStartingPosition.x + 2f)
             {
                 position.x = gridStartingPosition.x;
                 position.y -= 0.75f;

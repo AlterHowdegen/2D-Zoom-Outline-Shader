@@ -1,0 +1,16 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f8186b0170ef40eaaa33a9f13b2d081, type: 3}
+  m_Name: Hydra
+  m_EditorClassIdentifier: Assembly-CSharp::Ship
+  modelPrefab: {fileID: 4647180331326336501, guid: 1fd63c9f84cb046fe83ee1d3edf6fb67, type: 3}
+  spritePrefab: {fileID: 5918020928777958947, guid: c429272e5ae2a414083d6cca4a7f7831, type: 3}
