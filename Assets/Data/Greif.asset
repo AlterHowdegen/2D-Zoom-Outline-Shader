@@ -14,3 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Ship
   modelPrefab: {fileID: 4647180331326336501, guid: 216d4b8d42dab4ca6a8add590eda4830, type: 3}
   spritePrefab: {fileID: 5918020928777958947, guid: c429272e5ae2a414083d6cca4a7f7831, type: 3}
+  speed: 1.6

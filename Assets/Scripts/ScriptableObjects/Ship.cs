@@ -7,4 +7,6 @@ public class Ship : ScriptableObject
     public MeshRenderer spritePrefab;
     internal Transform model;
     internal MeshRenderer sprite;
+    internal Vector3 targetPosition = Vector3.zero;
+    public float speed = 1f;
 }

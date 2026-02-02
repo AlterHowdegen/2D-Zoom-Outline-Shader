@@ -4754,7 +4754,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: c0da0ce56762c45aab9d48cdde76bc34, type: 2}
   gameObjects: []
   sprites: []
-  meshRenderers: []
+  targetPositions: []
   rotationDuration: 2
   scaleSmall: 1
   scaleBig: 1.75
@@ -4777,6 +4777,7 @@ MonoBehaviour:
   renderTextureColor: {fileID: 8400000, guid: f5d37f51c934a4cce87b80b5c37aa6cc, type: 2}
   renderTextureShading: {fileID: 8400000, guid: 2dcaa5ff5183945b8bce1e7db7297420, type: 2}
   spritesStartingPosition: {x: -3, y: 0, z: 0}
+  shipSpawnPosition: {x: -5, y: 0, z: 0}
 --- !u!1 &2079417717
 GameObject:
   m_ObjectHideFlags: 0

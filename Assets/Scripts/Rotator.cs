@@ -1,10 +1,8 @@
 using System;
 using System.Collections.Generic;
 using TMPro;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.Rendering;
-using UnityEngine.Video;
 
 public class Rotator : MonoBehaviour
 {
@@ -12,8 +10,6 @@ public class Rotator : MonoBehaviour
     internal List<Ship> shipInstances = new List<Ship>();
 
     public List<GameObject> gameObjects = new List<GameObject>();
-    public List<GameObject> sprites = new List<GameObject>();
-    public List<MeshRenderer> meshRenderers = new List<MeshRenderer>();
     public float rotationDuration;
     public float scaleSmall;
     public float scaleBig;
@@ -22,7 +18,7 @@ public class Rotator : MonoBehaviour
     private bool turntableRunning;
     private bool resizedBig;
     private bool isBarrelRolling;
-    private bool isPositionedInRow;
+    private bool isPositionedInRow = true;
     public Vector3 rowStartingPosition;
     public Vector3 gridStartingPosition;
     public float delayDuration = 0.1f;
@@ -48,27 +44,26 @@ public class Rotator : MonoBehaviour
     private Vector2 offset = Vector2.zero;
     public Vector3 spritesStartingPosition;
     private int previousRandomIndex = -1;
+    public Vector3 shipSpawnPosition;
 
     private void Start()
     {
         Application.targetFrameRate = 60;
         cameraColor.enabled = false;
         cameraShading.enabled = false;
-        PositionInGridNow();
         RequestManualRender(cameraColor);
         RequestManualRender(cameraShading);
 
         targetFrameCountForCurrentAnimationFramerate = Application.targetFrameRate / initialAnimationFramerates[0];
-        meshRenderers = new List<MeshRenderer>();
         for (int i = 0; i < gameObjects.Count; i++)
         {
             GameObject go = gameObjects[i];
             go.transform.localScale = Vector3.one * scaleSmall;
-            GameObject sprite = sprites[i];
-            meshRenderers.Add(sprite.GetComponent<MeshRenderer>());
             previousPositions.Add(go.transform.localPosition.y);
             interpolatedVelocities.Add(0f);
         }
+
+        PositionInRow(false);
         UpdateFpsDisplay();
     }
 
@@ -84,7 +79,17 @@ public class Rotator : MonoBehaviour
             currentAnimationFrame = 0;
         }
 
+        MoveShips();
         Bank();
+    }
+
+    private void MoveShips()
+    {
+        for (int i = 0; i < shipInstances.Count; i++)
+        {
+            Ship ship = shipInstances[i];
+            ship.sprite.transform.localPosition = Vector3.MoveTowards(ship.sprite.transform.localPosition, ship.targetPosition, Time.deltaTime * ship.speed);
+        }
     }
 
     public void SpawnShip()
@@ -111,17 +116,18 @@ public class Rotator : MonoBehaviour
         GameObject model = Instantiate(ship.modelPrefab.gameObject, Vector3.zero, Quaternion.identity);
         GameObject sprite = Instantiate(ship.spritePrefab.gameObject, Vector3.zero, Quaternion.identity);
         ship.model = model.GetComponent<Transform>();
-        ship.sprite = model.GetComponent<MeshRenderer>();
+        ship.sprite = sprite.GetComponent<MeshRenderer>();
         gameObjects.Add(model);
-        sprites.Add(sprite);
         shipInstances.Add(ship);
         previousPositions.Add(sprite.transform.localPosition.y);
         interpolatedVelocities.Add(0f);
+        ship.sprite.transform.localPosition = shipSpawnPosition;
 
         ResizeRenderTextures();
         PositionModels();
         PositionCameras();
         SetSpritesTilingAndOffset();
+        PositioningAgain();
     }
 
     private void PositionCameras()
@@ -139,33 +145,29 @@ public class Rotator : MonoBehaviour
 
     private void PositionModels()
     {
-        for (int i = 0; i < gameObjects.Count; i++)
+        for (int i = 0; i < shipInstances.Count; i++)
         {
-            GameObject go = gameObjects[i];
+            Ship ship = shipInstances[i];
             Vector3 position = Vector3.zero;
             position.x = i * 1f;
-            go.transform.localPosition = position;
+            ship.model.transform.localPosition = position;
         }
     }
 
     private void SetSpritesTilingAndOffset()
     {
         tiling.x = 1f / renderTextureResolution.x;
-        Vector3 goOffset = Vector3.zero;
         offset = Vector3.zero;
-        for (int i = 0; i < sprites.Count; i++)
+        for (int i = 0; i < shipInstances.Count; i++)
         {
+            Ship ship = shipInstances[i];
             offset.x = tiling.x * i;
-            MeshRenderer meshRenderer = sprites[i].GetComponent<MeshRenderer>();
+            MeshRenderer meshRenderer = ship.sprite.GetComponent<MeshRenderer>();
             meshRenderer.material.SetVector("_Tiling", tiling);
             meshRenderer.material.SetVector("_Offset", offset);
 
             meshRenderer.material.SetTexture("_MainTex", renderTextureColor);
             meshRenderer.material.SetTexture("_Color_Tex", renderTextureShading);
-
-            GameObject sprite = sprites[i];
-            sprite.transform.localPosition = spritesStartingPosition + goOffset;
-            goOffset.x += 1f;
         }
     }
 
@@ -197,23 +199,22 @@ public class Rotator : MonoBehaviour
 
     private void Bank()
     {
-        for (int i = 0; i < sprites.Count; i++)
+        for (int i = 0; i < shipInstances.Count; i++)
         {
-            GameObject sprite = sprites[i];
-            GameObject go = gameObjects[i];
+            Ship ship = shipInstances[i];
             float previousPosition = previousPositions[i];
 
-            float velocity = sprite.transform.localPosition.y - previousPosition;
+            float velocity = ship.sprite.transform.localPosition.y - previousPosition;
 
             interpolatedVelocities[i] = Mathf.Lerp(interpolatedVelocities[i], velocity, Time.deltaTime);
 
-            Vector3 localEulerAngles = go.transform.localEulerAngles;
+            Vector3 localEulerAngles = ship.model.transform.localEulerAngles;
             localEulerAngles.x = interpolatedVelocities[i] * bankingSpeed;
 
-            go.transform.localEulerAngles = localEulerAngles;
+            ship.model.transform.localEulerAngles = localEulerAngles;
             // Debug.Log(localEulerAngles.x);
 
-            previousPositions[i] = sprite.transform.localPosition.y;
+            previousPositions[i] = ship.sprite.transform.localPosition.y;
         }
     }
 
@@ -367,49 +368,47 @@ public class Rotator : MonoBehaviour
         PositionInRow();
     }
 
-    private void PositionInRow()
+    public void PositioningAgain()
     {
-        SetNotification("Position:", "Row");
-        Vector3 position = rowStartingPosition;
-        for (int i = 0; i < sprites.Count; i++)
+        if (isPositionedInRow)
         {
-            GameObject sprite = sprites[i];
-            LeanTween.moveLocal(sprite, position, rotationDuration)
-                .setEaseInOutCubic()
-                .setDelay(i * delayDuration);
+            PositionInRow(false);
+            return;
+        }
+
+        PositionInGrid(false);
+    }
+
+    private void PositionInRow(bool doNotification = true)
+    {
+        if (doNotification)
+        {
+            SetNotification("Position:", "Row");
+        }
+        Vector3 position = rowStartingPosition;
+        for (int i = 0; i < shipInstances.Count; i++)
+        {
+            Ship ship = shipInstances[i];
+            ship.targetPosition = position;
             position.x += 0.9f;
         }
     }
 
-    private void PositionInGrid()
+    private void PositionInGrid(bool doNotification = true)
     {
-        SetNotification("Position:", "Grid");
-        Vector3 position = gridStartingPosition;
-        for (int i = 0; i < sprites.Count; i++)
+        if (doNotification)
         {
-            GameObject sprite = sprites[i];
+            SetNotification("Position:", "Grid");
+        }
 
-            LeanTween.moveLocal(sprite, position, rotationDuration)
-                .setEaseInOutCubic()
-                .setDelay(i * delayDuration);
+        Vector3 position = gridStartingPosition;
+        for (int i = 0; i < shipInstances.Count; i++)
+        {
+            Ship ship = shipInstances[i];
+            ship.targetPosition = position;
+
             position.x++;
             if (position.x > gridStartingPosition.x + 2f)
-            {
-                position.x = gridStartingPosition.x;
-                position.y -= 0.75f;
-            }
-        }
-    }
-
-    private void PositionInGridNow()
-    {
-        Vector3 position = gridStartingPosition;
-        for (int i = 0; i < sprites.Count; i++)
-        {
-            GameObject sprite = sprites[i];
-            sprite.transform.localPosition = position;
-            position.x++;
-            if (position.x > gridStartingPosition.x + 1f)
             {
                 position.x = gridStartingPosition.x;
                 position.y -= 0.75f;
@@ -420,13 +419,14 @@ public class Rotator : MonoBehaviour
     public void FlashAll()
     {
         SetNotification("Flash", "Flash");
-        for (int i = 0; i < meshRenderers.Count; i++)
+        for (int i = 0; i < ships.Count; i++)
         {
-            MeshRenderer meshRenderer = meshRenderers[i];
+            Ship ship = shipInstances[i];
+            MeshRenderer meshRenderer = ship.sprite;
             Flash(meshRenderer, flashColor, i);
         }
 
-        Flash(meshRendererFlagship, flashColorEnemy, 0);
+        // Flash(meshRendererFlagship, flashColorEnemy, 0);
     }
 
     public void Flash(MeshRenderer meshRenderer, Color flashColor, int i)
