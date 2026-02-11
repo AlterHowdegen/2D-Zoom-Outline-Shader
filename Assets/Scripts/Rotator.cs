@@ -23,8 +23,6 @@ public class Rotator : MonoBehaviour
     public Vector3 gridStartingPosition;
     public float delayDuration = 0.1f;
     public Color flashColor;
-    public Camera cameraColor;
-    public Camera cameraShading;
     public List<int> initialAnimationFramerates = new List<int>();
     public int targetFrameCountForCurrentAnimationFramerate;
     private int currentAnimationFrame;
@@ -49,10 +47,6 @@ public class Rotator : MonoBehaviour
     private void Start()
     {
         Application.targetFrameRate = 60;
-        cameraColor.enabled = false;
-        cameraShading.enabled = false;
-        RequestManualRender(cameraColor);
-        RequestManualRender(cameraShading);
 
         targetFrameCountForCurrentAnimationFramerate = Application.targetFrameRate / initialAnimationFramerates[0];
         for (int i = 0; i < gameObjects.Count; i++)
@@ -73,9 +67,6 @@ public class Rotator : MonoBehaviour
 
         if (currentAnimationFrame >= targetFrameCountForCurrentAnimationFramerate)
         {
-            RequestManualRender(cameraColor);
-            RequestManualRender(cameraShading);
-
             currentAnimationFrame = 0;
         }
 
@@ -88,7 +79,7 @@ public class Rotator : MonoBehaviour
         for (int i = 0; i < shipInstances.Count; i++)
         {
             Ship ship = shipInstances[i];
-            ship.sprite.transform.localPosition = Vector3.MoveTowards(ship.sprite.transform.localPosition, ship.targetPosition, Time.deltaTime * ship.speed);
+            ship.model.transform.localPosition = Vector3.MoveTowards(ship.model.transform.localPosition, ship.targetPosition, Time.deltaTime * ship.speed);
         }
     }
 
@@ -116,24 +107,15 @@ public class Rotator : MonoBehaviour
         GameObject model = Instantiate(ship.modelPrefab.gameObject, Vector3.zero, Quaternion.identity);
         GameObject sprite = Instantiate(ship.spritePrefab.gameObject, Vector3.zero, Quaternion.identity);
         ship.model = model.GetComponent<Transform>();
-        ship.sprite = sprite.GetComponent<MeshRenderer>();
         gameObjects.Add(model);
         shipInstances.Add(ship);
         previousPositions.Add(sprite.transform.localPosition.y);
         interpolatedVelocities.Add(0f);
-        ship.sprite.transform.localPosition = shipSpawnPosition;
+        ship.model.transform.localPosition = shipSpawnPosition;
 
         ResizeRenderTextures();
         PositionModels();
-        PositionCameras();
-        SetSpritesTilingAndOffset();
         PositioningAgain();
-    }
-
-    private void PositionCameras()
-    {
-        PositionCamera(cameraColor);
-        PositionCamera(cameraShading);
     }
 
     private void PositionCamera(Camera camera)
@@ -151,23 +133,6 @@ public class Rotator : MonoBehaviour
             Vector3 position = Vector3.zero;
             position.x = i * 1f;
             ship.model.transform.localPosition = position;
-        }
-    }
-
-    private void SetSpritesTilingAndOffset()
-    {
-        tiling.x = 1f / renderTextureResolution.x;
-        offset = Vector3.zero;
-        for (int i = 0; i < shipInstances.Count; i++)
-        {
-            Ship ship = shipInstances[i];
-            offset.x = tiling.x * i;
-            MeshRenderer meshRenderer = ship.sprite.GetComponent<MeshRenderer>();
-            meshRenderer.material.SetVector("_Tiling", tiling);
-            meshRenderer.material.SetVector("_Offset", offset);
-
-            meshRenderer.material.SetTexture("_MainTex", renderTextureColor);
-            meshRenderer.material.SetTexture("_Color_Tex", renderTextureShading);
         }
     }
 
@@ -204,7 +169,7 @@ public class Rotator : MonoBehaviour
             Ship ship = shipInstances[i];
             float previousPosition = previousPositions[i];
 
-            float velocity = ship.sprite.transform.localPosition.y - previousPosition;
+            float velocity = ship.model.transform.localPosition.y - previousPosition;
 
             interpolatedVelocities[i] = Mathf.Lerp(interpolatedVelocities[i], velocity, Time.deltaTime);
 
@@ -214,7 +179,7 @@ public class Rotator : MonoBehaviour
             ship.model.transform.localEulerAngles = localEulerAngles;
             // Debug.Log(localEulerAngles.x);
 
-            previousPositions[i] = ship.sprite.transform.localPosition.y;
+            previousPositions[i] = ship.model.transform.localPosition.y;
         }
     }
 
@@ -422,8 +387,8 @@ public class Rotator : MonoBehaviour
         for (int i = 0; i < ships.Count; i++)
         {
             Ship ship = shipInstances[i];
-            MeshRenderer meshRenderer = ship.sprite;
-            Flash(meshRenderer, flashColor, i);
+            // MeshRenderer meshRenderer = ship.sprite;
+            // Flash(meshRenderer, flashColor, i);
         }
 
         // Flash(meshRendererFlagship, flashColorEnemy, 0);
