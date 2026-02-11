@@ -2,7 +2,6 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.Rendering.RenderGraphModule;
-using UnityEngine.Rendering.RendererUtils;
 
 public class MultiStepOutlineFeature : ScriptableRendererFeature
 {
@@ -36,7 +35,7 @@ public class MultiStepOutlineFeature : ScriptableRendererFeature
         {
             this.settings = settings;
             // Using AfterRenderingPostProcessing to ensure we are the final output
-            this.renderPassEvent = RenderPassEvent.AfterRenderingPostProcessing;
+            this.renderPassEvent = RenderPassEvent.AfterRenderingTransparents;
         }
 
         private class PassData
@@ -61,6 +60,9 @@ public class MultiStepOutlineFeature : ScriptableRendererFeature
             // IMPORTANT: RTs must have 0 depth bits to be used as Color Attachments
             desc.depthBufferBits = 0;
             desc.msaaSamples = 1;
+
+            // FORCE an Alpha channel format (Standard 8-bit RGBA)
+            desc.graphicsFormat = UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_SRGB;
 
             // 1. Create temporary textures
             TextureHandle texColor = UniversalRenderer.CreateRenderGraphTexture(renderGraph, desc, "_TexColor", true);
@@ -90,9 +92,6 @@ public class MultiStepOutlineFeature : ScriptableRendererFeature
                 builder.SetRenderAttachment(texShading, 1);
                 builder.SetRenderAttachmentDepth(resourceData.activeDepthTexture, AccessFlags.Write);
 
-                // Prevent the graph from culling this pass if it thinks it's unused
-                builder.AllowPassCulling(false);
-
                 builder.SetRenderFunc((PassData data, RasterGraphContext context) =>
                 {
                     context.cmd.ClearRenderTarget(true, true, Color.clear);
@@ -121,11 +120,8 @@ public class MultiStepOutlineFeature : ScriptableRendererFeature
                     data.compositeMaterial.SetTexture("_ColorBuffer", data.colorTex);
                     data.compositeMaterial.SetTexture("_ShadingBuffer", data.shadingTex);
 
-                    // Shader.SetGlobalTexture("_ColorBuffer", data.colorTex);
-                    // Shader.SetGlobalTexture("_ShadingBuffer", data.shadingTex);
-
                     // The first texture in BlitTexture becomes '_BlitTexture' in Shader Graph
-                    Blitter.BlitTexture(context.cmd, data.colorTex, new Vector4(1, 1, 0, 0), data.compositeMaterial, 0);
+                    Blitter.BlitTexture(context.cmd, new Vector4(1, 1, 0, 0), data.compositeMaterial, 0);
                 });
             }
         }
