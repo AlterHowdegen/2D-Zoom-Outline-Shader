@@ -60,7 +60,7 @@ Material:
     m_Floats:
     - _Float: 0.5
     - _Inner_Step: 0.099
-    - _Inner_Strength: 0.699
+    - _Inner_Strength: 0.487
     - _Outer_Strength: 1
     - _QueueControl: 0
     - _QueueOffset: 0
@@ -68,7 +68,7 @@ Material:
     m_Colors:
     - _Inner_Color: {r: 0, g: 0, b: 0, a: 1}
     - _Offset: {r: 0, g: 0, b: 0, a: 0}
-    - _Outline_Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Outline_Color: {r: 0, g: 0, b: 0, a: 1}
     - _Tiling: {r: 1, g: 1, b: 0, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
