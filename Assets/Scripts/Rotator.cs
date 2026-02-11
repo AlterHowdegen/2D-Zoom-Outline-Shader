@@ -105,11 +105,10 @@ public class Rotator : MonoBehaviour
 
         Ship ship = Instantiate(ships[randomIndex]);
         GameObject model = Instantiate(ship.modelPrefab.gameObject, Vector3.zero, Quaternion.identity);
-        GameObject sprite = Instantiate(ship.spritePrefab.gameObject, Vector3.zero, Quaternion.identity);
         ship.model = model.GetComponent<Transform>();
         gameObjects.Add(model);
         shipInstances.Add(ship);
-        previousPositions.Add(sprite.transform.localPosition.y);
+        previousPositions.Add(model.transform.localPosition.y);
         interpolatedVelocities.Add(0f);
         ship.model.transform.localPosition = shipSpawnPosition;
 
