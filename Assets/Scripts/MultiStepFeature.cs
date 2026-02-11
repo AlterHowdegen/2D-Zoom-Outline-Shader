@@ -75,7 +75,9 @@ public class MultiStepOutlineFeature : ScriptableRendererFeature
             DrawingSettings drawingSettings = new DrawingSettings(new ShaderTagId("UniversalForward"), sortingSettings)
             {
                 overrideShader = settings.objectMRTMaterial.shader,
-                overrideShaderPassIndex = 0
+                overrideShaderPassIndex = 0,
+                enableDynamicBatching = false, // Disable this to favor SRP Batcher
+                enableInstancing = true        // Enable this
             };
 
             // Add these to include Unlit shaders and standard Particle shaders
