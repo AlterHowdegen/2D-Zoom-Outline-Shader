@@ -26,6 +26,7 @@ Shader "Custom/MRT_ColorAndShading"
                 float4 positionOS : POSITION;
                 float2 uv : TEXCOORD0;
                 float3 normalOS : NORMAL;
+                float4 vertexColor : COLOR;
             };
 
             struct Varyings
@@ -34,6 +35,7 @@ Shader "Custom/MRT_ColorAndShading"
                 float2 uv : TEXCOORD0;
                 float3 normalWS : TEXCOORD1;
                 float3 positionWS : TEXCOORD2;
+                float4 color : COLOR;
             };
 
             TEXTURE2D(_MainTex);
@@ -59,40 +61,17 @@ Shader "Custom/MRT_ColorAndShading"
                 output.positionWS = TransformObjectToWorld(input.positionOS.xyz);
                 output.uv = TRANSFORM_TEX(input.uv, _MainTex);
                 output.normalWS = TransformObjectToWorldNormal(input.normalOS);
+                output.color = input.vertexColor;
                 return output;
             }
-
-            // FragmentOutput frag(Varyings input)
-            // {
-            //     FragmentOutput outData;
-
-            //     // 1. Calculate Base Texture Color
-            //     float4 texColor = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv) * _BaseColor;
-
-            //     // TARGET 0: Flat Color
-            //     // We send pure color here. No shadows, no light. 
-            //     // This makes edge detection extremely easy for the compositor.
-            //     outData.color = texColor;
-
-            //     // TARGET 1: Shading
-            //     // Here we calculate standard URP lighting (Lambert/Specular)
-            //     Light mainLight = GetMainLight();
-            //     float3 lightColor = mainLight.color * saturate(dot(input.normalWS, mainLight.direction));
-                
-            //     // Add ambient/indirect light so it's not pitch black in shadows
-            //     float3 ambient = SampleSH(input.normalWS);
-                
-            //     outData.shading = float4(texColor.rgb * (lightColor + ambient), texColor.a);
-
-            //     return outData;
-            // }
 
             FragmentOutput frag(Varyings input)
             {
                 FragmentOutput outData;
 
                 // 1. Calculate color (Target 0)
-                float4 texColor = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv) * _BaseColor;
+                // float4 texColor = input.color;
+                float4 texColor = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv) * _BaseColor * input.color;
                 outData.color = texColor;
 
                 // 2. Calculate shading (Target 1)

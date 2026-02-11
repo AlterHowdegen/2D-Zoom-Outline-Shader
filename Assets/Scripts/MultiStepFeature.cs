@@ -78,6 +78,10 @@ public class MultiStepOutlineFeature : ScriptableRendererFeature
                 overrideShaderPassIndex = 0
             };
 
+            // Add these to include Unlit shaders and standard Particle shaders
+            drawingSettings.SetShaderPassName(1, new ShaderTagId("UniversalForwardOnly"));
+            drawingSettings.SetShaderPassName(2, new ShaderTagId("SRPDefaultUnlit"));
+
             var filterSettings = new FilteringSettings(RenderQueueRange.opaque, settings.targetLayerMask);
             var rendererListParams = new RendererListParams(renderingData.cullResults, drawingSettings, filterSettings);
             RendererListHandle rendererList = renderGraph.CreateRendererList(rendererListParams);
