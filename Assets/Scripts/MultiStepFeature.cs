@@ -12,6 +12,7 @@ public class MultiStepOutlineFeature : ScriptableRendererFeature
         [Tooltip("Shader must output to SV_Target0 and SV_Target1")]
         public Material objectMRTMaterial;
         public Material compositeMaterial;
+        public RenderPassEvent renderPassEvent;
     }
 
     public FeatureSettings settings = new FeatureSettings();
@@ -35,7 +36,7 @@ public class MultiStepOutlineFeature : ScriptableRendererFeature
         {
             this.settings = settings;
             // Using AfterRenderingPostProcessing to ensure we are the final output
-            this.renderPassEvent = RenderPassEvent.AfterRenderingTransparents;
+            renderPassEvent = settings.renderPassEvent;
         }
 
         private class PassData
@@ -64,6 +65,9 @@ public class MultiStepOutlineFeature : ScriptableRendererFeature
             // FORCE an Alpha channel format (Standard 8-bit RGBA)
             desc.graphicsFormat = UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_SRGB;
 
+            desc.useMipMap = false;
+            desc.autoGenerateMips = false;
+
             // 1. Create temporary textures
             TextureHandle texColor = UniversalRenderer.CreateRenderGraphTexture(renderGraph, desc, "_TexColor", true);
             TextureHandle texShading = UniversalRenderer.CreateRenderGraphTexture(renderGraph, desc, "_TexShading", true);
@@ -72,16 +76,18 @@ public class MultiStepOutlineFeature : ScriptableRendererFeature
             SortingSettings sortingSettings = new SortingSettings(cameraData.camera);
             sortingSettings.criteria = SortingCriteria.CommonOpaque;
 
-            DrawingSettings drawingSettings = new DrawingSettings(new ShaderTagId("UniversalForward"), sortingSettings)
-            {
-                overrideShader = settings.objectMRTMaterial.shader,
-                overrideShaderPassIndex = 0,
-                enableDynamicBatching = false, // Disable this to favor SRP Batcher
-                enableInstancing = true        // Enable this
-            };
+            DrawingSettings drawingSettings = new DrawingSettings(new ShaderTagId("OutlineMRT"), sortingSettings);
+
+            drawingSettings.overrideShader = settings.objectMRTMaterial.shader;
+            // drawingSettings.overrideMaterial = settings.objectMRTMaterial;
+            drawingSettings.overrideShaderPassIndex = 0;
+            drawingSettings.enableDynamicBatching = false; // Disable this to favor SRP Batcher
+            drawingSettings.enableInstancing = true;        // Enable this
+            drawingSettings.perObjectData = PerObjectData.None;
+
 
             // Add these to include Unlit shaders and standard Particle shaders
-            drawingSettings.SetShaderPassName(1, new ShaderTagId("UniversalForwardOnly"));
+            drawingSettings.SetShaderPassName(1, new ShaderTagId("UniversalForward"));
             drawingSettings.SetShaderPassName(2, new ShaderTagId("SRPDefaultUnlit"));
 
             var filterSettings = new FilteringSettings(RenderQueueRange.opaque, settings.targetLayerMask);
@@ -94,13 +100,20 @@ public class MultiStepOutlineFeature : ScriptableRendererFeature
                 passData.rendererList = rendererList;
                 builder.UseRendererList(rendererList);
 
-                builder.SetRenderAttachment(texColor, 0);
-                builder.SetRenderAttachment(texShading, 1);
+                // This forces the Render Graph to treat this as a unique, non-mergeable block
+                builder.AllowPassCulling(false);
+                builder.AllowGlobalStateModification(true);
+
+                // Tell the Graph to CLEAR the textures before we use them
+                // This happens at the hardware level (Tile Load Action) which is Batcher-friendly
+                builder.SetRenderAttachment(texColor, 0, AccessFlags.Write);
+                builder.SetRenderAttachment(texShading, 1, AccessFlags.Write);
                 builder.SetRenderAttachmentDepth(resourceData.activeDepthTexture, AccessFlags.Write);
 
                 builder.SetRenderFunc((PassData data, RasterGraphContext context) =>
                 {
-                    context.cmd.ClearRenderTarget(true, true, Color.clear);
+                    // NO context.cmd.ClearRenderTarget here!
+                    // The builder handles the clearing now.
                     context.cmd.DrawRendererList(data.rendererList);
                 });
             }

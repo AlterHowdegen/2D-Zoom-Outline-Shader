@@ -1,4 +1,4 @@
-Shader "Custom/MRT_ColorAndShading"
+Shader "Custom/MRT_Color"
 {
     Properties
     {
@@ -59,8 +59,7 @@ Shader "Custom/MRT_ColorAndShading"
             // The magic struct: This defines our two targets
             struct FragmentOutput
             {
-                half4 color   : SV_Target0; // Maps to _TexColor (Color Buffer)
-                half4 shading : SV_Target1; // Maps to _TexShading (Shading Buffer)
+                half4 color   : SV_Target0;
             };
 
             Varyings vert(Attributes input)
@@ -84,14 +83,8 @@ Shader "Custom/MRT_ColorAndShading"
                 // 1. Calculate color (Target 0)
                 float4 texColor = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv) * _BaseColor * input.color;
                 texColor.a = saturate(input.color.a);
-                outData.color = texColor;
 
-                // 2. Calculate shading (Target 1)
-                Light mainLight = GetMainLight();
-                float3 diffuse = saturate(dot(input.normalWS, mainLight.direction)) * mainLight.color;
-                float3 ambient = SampleSH(input.normalWS);
-                
-                outData.shading = float4(texColor.rgb * (diffuse + ambient), texColor.a);
+                outData.color = texColor;
 
                 return outData;
             }

@@ -48,7 +48,7 @@ MonoBehaviour:
     passOperation: 2
     failOperation: 0
     zFailOperation: 0
-  m_ShadowTransparentReceive: 1
+  m_ShadowTransparentReceive: 0
   m_RenderingMode: 2
   m_DepthPrimingMode: 0
   m_CopyDepthMode: 0
@@ -75,6 +75,7 @@ MonoBehaviour:
       m_Bits: 64
     objectMRTMaterial: {fileID: 2100000, guid: 4c316ffa1b4d84c1eae7c0778fca4e96, type: 2}
     compositeMaterial: {fileID: 2100000, guid: bc53c41919beb48b78319e34dbebf024, type: 2}
+    renderPassEvent: 500
 --- !u!114 &7187005675146481970
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -90,7 +91,7 @@ MonoBehaviour:
   m_Active: 0
   settings:
     passTag: RenderObjects
-    Event: 500
+    Event: 450
     filterSettings:
       RenderQueueType: 0
       LayerMask:

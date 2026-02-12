@@ -1858,8 +1858,8 @@
     "m_ObjectId": "00329c4a9b044865a2b66bdf8040ab59",
     "m_Title": "Inner Lines",
     "m_Position": {
-        "x": -244.4998779296875,
-        "y": 2577.999755859375
+        "x": -244.5,
+        "y": 2578.0
     }
 }
 
@@ -2253,7 +2253,7 @@
     "m_Title": "Calculate Texel Size",
     "m_Position": {
         "x": -2794.0,
-        "y": 770.9999389648438
+        "y": 771.0
     }
 }
 
@@ -2828,8 +2828,8 @@
     "m_ObjectId": "1f704142c41f426bbf5772c786b40a25",
     "m_Title": "Sample neighbouring Fragments",
     "m_Position": {
-        "x": -1703.5001220703125,
-        "y": 979.9999389648438
+        "x": -1703.5,
+        "y": 980.0
     }
 }
 
@@ -7257,8 +7257,8 @@
     "m_ObjectId": "931ccb431122496db435da4f490e98f6",
     "m_Title": "UV",
     "m_Position": {
-        "x": -3860.999755859375,
-        "y": 1475.9998779296875
+        "x": -3861.0,
+        "y": 1476.0
     }
 }
 
@@ -10116,7 +10116,7 @@
     "m_Title": "Blend Outlines and Inner Lines",
     "m_Position": {
         "x": 2034.0,
-        "y": 1427.5001220703125
+        "y": 1427.5
     }
 }
 
